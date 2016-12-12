@@ -1,5 +1,11 @@
 Fantasy League Toolkit Generator for ESPN Leagues
 
+This is for Porkchop Sandwiches, a 12 team league with fractional scoring. 
+
+Playoffs are set up as top 4 teams are in, 2 weeks per matchip (weeks 14/15 and 16/17). 
+
+Last Place (Sacko) is determined by whoever loses week 17 between the 2 last place teams. 
+
 
 Command Line:
 
