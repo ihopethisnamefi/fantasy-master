@@ -6,6 +6,8 @@ Playoffs are set up as top 4 teams are in, 2 weeks per matchip (weeks 14/15 and 
 
 Last Place (Sacko) is determined by whoever loses week 17 between the 2 last place teams. 
 
+Link to league - http://games.espn.com/ffl/leagueoffice?leagueId=164548
+
 
 Command Line:
 
