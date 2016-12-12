@@ -1,0 +1,219 @@
+Yesterday in another thread I posted some images of the Power Rankings, Record Book and Leader Board I had created for my league.
+ 
+It garnered enough interest that I decided to make the code more general and post it in a github project in case any other ESPN League Managers want to add these graphics to their league pages.
+ 
+So if you are interested in this project, below I will step through a tutorial of how to get this personalized and working for your league too!
+ 
+Fair warning, the setup takes a bit of effort / time, its not too miserable and i think the results are worth it! And when you are done keeping it up to date should take only around 5 minutes a week
+ 
+Prerequisites:
+Dev Environment: Python, SQLite3
+Tools: DB Visualizer Tool
+ 
+So first off, the scripts I wrote are in Python, so in order to run them you will need Python installed on your computer. Luckily if you have a Mac or Linux computer, you probably already have Python installed. If it isn't installed already, use your preferred method to install it (yum, brew, etc) (ex. from the terminal run: yum install python)
+ 
+If you are on a windows machine you probably need to add C:\Python27 to your PATH. Google should be your friend here, just lookup how to install / run python on the command line
+ 
+Along with installing python you will also need to get a DB visualizer tool, the free version of DBVisualizer offers everything you will need.
+ 
+Once you have python and the DB Visualizer installed, you should download the files from the github project. Some of the files are for demo purposes, and some are templates for different league sizes.
+ 
+The files everyone should download are:
+conf.py
+league.db
+parseWeek.py
+parseOldYear.py
+parseYear.py
+powerRanking.py
+allTimeWins.py
+recordBook.py
+ 
+Then depending on your league size, go into the templates folder and download the appropriate league managers template (tenTeamLeague.py if you are a 10 team league, etc) Make sure to download this file into the same directory as all the ones you just downloaded, do not create a templates folder on your computer
+ 
+Now open up (to edit, not to run) the template file you just downloaded.
+ 
+If you aren't sure what I mean, right click on the file and choose 'open with' and pick something like textEdit or notepad or preferably an IDE like Atom or Sublime
+ 
+These two files are your configuration files and are how you can personalize this to your league.
+ 
+Lets start with the template file you chose, there should be an empty block of attributes for you to fill in for every manager in your league. If you want an example of how this file looks filled in, check out the exampleManagers.py file in the github project
+ 
+The information you are filling out for every manager is:
+name: This is obviously just the persons name
+nickname: This is a shortened version of their name that will appear in the Power Rankings
+picture: This is a direct url to an image you want to represent the team (I host my images on imgur for free)
+clubHouse: This is a link to the managers team page
+lastYearPosition: This is whatever position they finished in last year
+ 
+Once you have this file filled in, save it and lets begin editing the conf.py file
+ 
+This is a file you will have to make a small update to every week (basically just updating what number the week is), but the first time through we have several things we will need to change
+ 
+First, change 'exampleManagers' in the first line to the name of the template you were just editing (but do not add the extension .py - for example just put tenTeamLeague )
+ 
+Next look at the Date Settings. The year is already set to 2016, but if you want to use this again next year, you can update it to 2017 then
+ 
+The week should be set to "Preseason", but once the season starts, appropriate values are 1, 2, 3, 4, 5... 13
+ 
+Now for your history settings, update the first year your league was running. Then update the list of all the years your league has fully completed. (you will have to update the fully completed list at the conclusion of every season)
+ 
+Next lets look at the league settings, this is where you can personalize a bit to how your league is setup.
+ 
+First update the numberOfTeams in your league. It should be set to 10 by default
+homeFieldAdv is set to 2 points by default. If your league does 1 or 0 points for home field advantage, update it to reflect that
+numInPlayoffs is the number of teams that make the playoffs in your league. Right now I have it hard set to having 3 playoff weeks, so you are limited to picking 5, 6, 7, or 8 teams making the playoffs
+ 
+the next block of variables represent the number of starting positions in your matchups each week. I have it by default set to standard leagues
+1 QB
+2 RB
+2 WR
+1 TE
+1 FLEX
+1 D/ST
+1 K
+ 
+You can update these numbers (say if you have a 2 QB league), there is also an option for how many IDP slots you have.
+ 
+Set any of these to 0 if you dont have any starting spots in your league for them (i.e. No Kicker Leagues)
+Thats all for the configuration file editing.
+ 
+ 
+Now comes the more tedious part. We need to build up our league database, in order to do that we need to import all the matchup data from your league's history. Meaning the longer your league has been around, the more work you have to do now. And unfortunately ESPN does not offer any public APIs to get this information, so we will have to input it manually. But typing out even one weeks worth of matchup details would be exhausting, so I have created a couple scripts that can do most of the work for us, but you will still have to do a little prep work to get the input for the scripts setup.
+ 
+So first off, lets go over how you need to create / format the input files
+ 
+Step 1) create a file with the year your are documenting as the title (example: 2013.txt)
+ 
+Step 2) navigate in your ESPN league to that years Scoreboard and then to the first week of that year
+ 
+Step 3) type out the managers' names in the file you created in this format:
+ 
+Away Manager of Game 1
+ 
+Home Manager of Game 1
+ 
+Away Manager of Game 2
+ 
+Home Manager of Game 2
+ 
+...
+ 
+Away Manager of Game n
+ 
+Home Manager of Game n
+ 
+Where n is however many games there are. If you are not following what I am saying, check out the example files for a ten team league
+matchupInputTemplateTenTeam.txt
+matchupTemplateNames.txt on github
+ 
+Step 4) Go into each matchup and copy paste the player score data under the respective manager name
+Away Team Info
+Home Team Info
+Repeat for every matchup during the week (there will be a matchup switching dropdown in the top right of the screen)
+ 
+Step 5) Repeat Step 5 for every week of the year including playoffs (for playoffs - only do teams not on BYE and not in the consolation bracket - so in a 10 team league with a 5 person playoff, you would only have one matchup to input for week 14)
+Filled in Year Example
+There are also examples for 2013 and 2015 in the github project as well
+ 
+Step 6) There is an annoying case that we need to protect against at this point
+You will notice every once in a while a ESPN says a player is on BYE - even if they really arent (i think it happens when players have switched teams)
+In order to stop this case from breaking the script you need to run a replaceAll command after you fill in the whole year
+Replace:
+"** BYE **"
+With::
+"
+BYE
+BYE 0-0"
+ 
+Copy between the quotation marks - do not include them
+ 
+Step 7) At this point you can run the script to generate the SQL statements to start to populate the database with the year of data you just copied
+Open up your terminal (console for windows users) and navigate to the directory you are keeping these files in.
+ 
+There are actually 2 scripts for parsing this data, this is because ESPN for some reason changed the way they show player data for years previous to 2015.
+So for years 2014 and back use parseOldYear.py and for 2015 use parseYear.py
+For examples sake, lets say we just collected data for the year 2013 type in the command
+python parseOldYear.py 2013 > temp.txt
+ 
+this will output all the SQL statements we will need in a minute into a file named temp.txt (it will be in the same directory you are currently in)
+ 
+Step 8)
+Open up your db visualizer, and create a new db connection You can choose to use the wizard or not, wizard is probably easier.
+Name the database connection, something like theLeague, or history or league or whatever your heart desires
+Next when it asks what kind of database driver choose SQLite
+On the next screen you can review the details it has generated, at this point you should change the database name to the path of the database file you download from github earlier something like /Users/username/Documents/fantasystuff/league.db
+Once you do this it should open up a connection with a database with 3 empty tables, right click on one of the tables (doesnt matter which) and choose "Script Table"
+Doesn't matter which of these commands up top you choose, but just select "Select" and click okay. At this point we are in a scripting console where we can manipulate our database. Delete anything you see in the terminal (Something like SELECT * FROM history;)
+This is where we are going to paste the contents of the temp.txt file we just created.
+Hit run. (The green play button in the upper left)
+Make sure there are not any errors. You want to make sure that there aren't any rows dropped, as every piece of information is crucial in determining matchup outcomes.
+ 
+Step 9) Repeat all steps for all years your league has been active
+Now you have a database containing all your league info. You can query this for anything you want to know.
+Matchup History
+or maybe
+Times home field advantage turned a loss or tie into a win
+Also importantly, now you can generate an All Time Leader Board, a Record Book and Power Rankings for your league
+ 
+How to Generate the Leader Board
+ 
+In the directory with the all these files type the command:
+python allTimeWins.py
+Copy and Paste the output into your league page
+ 
+How to Generate the Record Book
+ 
+In the directory with the all these files type the command:
+python recordBook.py
+Copy and Paste the output into your league page
+ 
+How to Generate the Power Rankings
+ 
+There are two ways of generating the power rankings
+Either by prompt, or by inputting a text file
+To be prompted through creating the rankings (who is first? describe them. who is second? describe them, etc), from the directory with the all these files, type the command:
+python powerRanking.py
+ 
+else create a file (example preseason.txt) and on the first line write the name of the person you want to be in first place in the ranking, on the second line give a little description of their team that week. Continue this pattern, third line should be the person in second, 4th line is his description, etc
+Save this file, then run:
+python powerRanking.py preseason.txt
+ 
+In either case it will print out 2 distinct blocks of text. The first block of text is what you need to copy/paste into your league page. The 2nd block of text are SQL Insert statements that you need to run in the DB Visualizer tool. (in the same way we did the INSERT statements from earlier) This is so you can keep track of your rankings throughout the year and show the trending statistics
+ 
+ 
+At this point you should hopefully have a nifty looking league page.
+ 
+To keep everything up to date you will need to keep updating the week variable in the conf.py file, and basically need to do the same thing you did to populate the database earlier, but you'll only need to copy/paste one week's worth of data and run it through the script parseWeek.py
+ 
+So for example, in week one of this year, you would create a new file called something like weekOne2016.txt and populate it with the matchup data for the week in the same manner as earlier then run it through this command:
+python parseWeek.py weekOne2016.txt
+Copy/paste the SQL Insert statements into the database tool and run it (make sure no errors)
+ 
+Then just regenerate the Leader Board, Record Book and Power Rankings the same way as described earlier. They should all now be up to date with the latest league info.
+ 
+Let me know if you have any questions or find any bugs! I never really intended for this to be used by other leagues, so it hasnt been heavily tested for all scenerios.
+ 
+There is also lots of room for improvement if people want to fork the repo and start contributing to the project. It would be nice to have support for decimal scoring, different playoff configurations, maybe have some sortof matchup generator.
+ 
+Edits: Spelling, missed words, formatting
+
+
+
+
+This is awesome! Any tips to modify it for fractional scoring?
+
+It shouldnt be that hard.
+It may be as easy as just updating the database table schemas before you do any of the data importing.
+You would have to change the score, matchupTotal and pointDiff columns from an INT to FLOAT or DOUBLE (depending on how many decimal places you use - double being 1, float being more than that)
+To do this you can right click on the history table and click 'Script Table', choose 'Create'
+Then do the same thing for the matchups table.
+You should now have two CREATE statements in that terminal. Update the INT value to DOUBLE (or FLOAT if you have 2 decimal places or more in your scoring) for those columns mentioned earlier
+Above them paste these two lines:
+DROP TABLE history;
+DROP TABLE matchups;
+You should have something that looks like this
+Then push the green play button to run the commands. This should delete the two tables and create two new ones with the updated schemas.
+Fractional scoring may work at that point, but I havent tested it at all, so I'm afraid to say for sure. I'm afraid if you choose FLOAT, it will print out a whole bunch of decimals places at times which will look ugly.
+Let me know! I can look into it tomorrow, but I dont have fractional scoring in my league, so generating source files for testing would be a little tedius
+
+Yup thanks that did it! You also have to edit parseYear.py and parseOldYear.py to replace the int with float, but it works great for me now.
