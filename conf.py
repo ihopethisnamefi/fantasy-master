@@ -1,11 +1,11 @@
 from twelveTeamLeague import managerInfo
 
 #Date Settings
-year = 2016
-week = '13' # Values - 'Preseason', 1, 2, 3 ... 13
+year = 2017
+week = 'Preseason' # Values - 'Preseason', 1, 2, 3 ... 13
 
 firstYear = 2011
-yearsCompleted = ['2011','2012','2013','2014','2015']
+yearsCompleted = ['2011','2012','2013','2014','2015','2016']
 
 #League History - Retired Manager list
 retiredManagers = ['Vijan Patel','Phuc Nguyen','Elton Wong','Matthew Lum','Tammy Vo','Matt Leal','Edward Aviles','Jeff Klein']
